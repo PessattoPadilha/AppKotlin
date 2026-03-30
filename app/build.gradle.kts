@@ -52,4 +52,20 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+// Versão estável do CameraX
+    val camerax_version = "1.3.4"
+
+    // Dependências principais do CameraX
+    implementation("androidx.camera:camera-core:$camerax_version")
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-lifecycle:$camerax_version")
+
+    // ESTA É A QUE RESOLVE O SEU ERRO (PreviewView está aqui):
+    implementation("androidx.camera:camera-view:$camerax_version")
+
+    // Opcional: Para facilitar a captura
+    implementation("androidx.camera:camera-extensions:$camerax_version")
+
+
 }
