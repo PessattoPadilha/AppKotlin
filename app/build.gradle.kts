@@ -67,5 +67,8 @@ dependencies {
     // Opcional: Para facilitar a captura
     implementation("androidx.camera:camera-extensions:$camerax_version")
 
+    // SDK do Google AI para o Gemini
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
 
 }
