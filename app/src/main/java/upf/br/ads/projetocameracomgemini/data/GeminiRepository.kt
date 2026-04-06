@@ -9,10 +9,10 @@ import kotlinx.coroutines.withContext
 class GeminiRepository {
 
     // Substitua pela sua chave real do Google AI Studio
-    private val apiKey = "SUA_API_KEY_AQUI"
+    private val apiKey = "AIzaSyB03SiiVfmVdEf6eydHAArYeJNhA_12Sfg"
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-1.5-flash",
+        modelName = "gemini-3-flash-preview",
         apiKey = apiKey
     )
 

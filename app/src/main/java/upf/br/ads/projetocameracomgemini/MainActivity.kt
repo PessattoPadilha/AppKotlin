@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         viewFinder = findViewById(R.id.viewFinder)
         progressBar = findViewById(R.id.progressBar)
 
-        findViewById<Button>(R.id.image_capture_button).setOnClickListener {
+        findViewById<Button>(R.id.botaoFoto).setOnClickListener {
             takePhoto()
         }
 
