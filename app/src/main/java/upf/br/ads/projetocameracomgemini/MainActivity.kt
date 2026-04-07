@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                     val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
                     runOnUiThread {
                         lifecycleScope.launch {
-                            val resultado = geminiRepository.analisarProduto(bitmap)
+                            val resultado = geminiRepository.analisarProduto(this@MainActivity,bitmap)
                             progressBar.visibility = View.GONE
                             if (resultado != null) {
                                 val intent = Intent(this@MainActivity, ResultadoActivity::class.java).apply {

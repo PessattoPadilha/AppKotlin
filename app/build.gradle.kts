@@ -70,5 +70,8 @@ dependencies {
     // SDK do Google AI para o Gemini
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
 
 }
