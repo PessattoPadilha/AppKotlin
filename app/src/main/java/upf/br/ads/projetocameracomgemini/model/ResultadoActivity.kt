@@ -14,12 +14,11 @@ class ResultadoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_resultado)
 
-        // 1. Referenciar os componentes do XML
+        //pegando os elementos da tela
         val imageView = findViewById<ImageView>(R.id.fotoResultado)
         val textView = findViewById<TextView>(R.id.textoDescricao)
 
-
-        // 2. Pegar os dados que vieram da Intent da MainActivity
+        //pegando foto e descrição da ia
         val caminhoFoto = intent.getStringExtra("CAMINHO_FOTO")
         val descricaoIA = intent.getStringExtra("DESCRICAO_IA")
 

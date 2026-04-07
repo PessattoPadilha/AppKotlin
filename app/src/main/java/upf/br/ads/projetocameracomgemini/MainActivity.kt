@@ -22,13 +22,10 @@ import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
 import upf.br.ads.projetocameracomgemini.data.GeminiRepository
+import upf.br.ads.projetocameracomgemini.model.ResultadoActivity
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-
-// --- IMPORT NECESSÁRIO ADICIONADO ABAIXO ---
-// Se sua ResultadoActivity estiver na pasta 'model', você PRECISA desta linha:
-import upf.br.ads.projetocameracomgemini.model.ResultadoActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,10 +36,22 @@ class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) startCamera() else Toast.makeText(this, "Permissão negada.", Toast.LENGTH_SHORT).show()
+    // --- MUDANÇA AQUI: Launcher para múltiplas permissões ---
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
+        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+
+        if (cameraGranted) {
+            startCamera()
+        } else {
+            Toast.makeText(this, "A câmera é necessária para o app.", Toast.LENGTH_SHORT).show()
+        }
+
+        if (!locationGranted) {
+            Toast.makeText(this, "A localização não será incluída nos dados.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,13 +65,30 @@ class MainActivity : AppCompatActivity() {
             takePhoto()
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_GRANTED) {
-            startCamera()
+        // --- MUDANÇA AQUI: Verifica Câmera e Localização ao iniciar ---
+        checkAndRequestPermissions()
+    }
+
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            startCamera()
         }
     }
+
+    // O restante do seu código (startCamera, bindPreview, takePhoto, onDestroy)
+    // permanece igual ao original, garantindo que a câmera inicie se permitido.
 
     private fun startCamera() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -78,31 +104,23 @@ class MainActivity : AppCompatActivity() {
 
     fun bindPreview(cameraProvider: ProcessCameraProvider) {
         cameraProvider.unbindAll()
-
         val preview = Preview.Builder().build()
         val cameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK)
             .build()
-
         preview.setSurfaceProvider(viewFinder.surfaceProvider)
-
         imageCapture = ImageCapture.Builder()
             .setTargetRotation(viewFinder.display.rotation)
             .build()
-
         try {
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        } catch (e: Exception) { e.printStackTrace() }
     }
 
     fun takePhoto() {
         val imageCapture = imageCapture ?: return
-
         val photoFile = File(externalCacheDir, "foto.jpg")
         val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
         progressBar.visibility = View.VISIBLE
 
         imageCapture.takePicture(outputFileOptions, cameraExecutor,
@@ -116,14 +134,11 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-
                     runOnUiThread {
                         lifecycleScope.launch {
                             val resultado = geminiRepository.analisarProduto(bitmap)
                             progressBar.visibility = View.GONE
-
                             if (resultado != null) {
-                                // Se o import lá em cima estiver certo, este erro some:
                                 val intent = Intent(this@MainActivity, ResultadoActivity::class.java).apply {
                                     putExtra("CAMINHO_FOTO", photoFile.absolutePath)
                                     putExtra("DESCRICAO_IA", resultado)

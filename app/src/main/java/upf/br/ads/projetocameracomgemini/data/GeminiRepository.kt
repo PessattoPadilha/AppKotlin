@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 class GeminiRepository {
 
     // Substitua pela sua chave real do Google AI Studio
-    private val apiKey = "AIzaSyB03SiiVfmVdEf6eydHAArYeJNhA_12Sfg"
+    private val apiKey = "AIzaSyADjen0roD3dIx8jgJ2VXA9O7UKUs1_ItA"
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
@@ -21,7 +21,19 @@ class GeminiRepository {
             val response = generativeModel.generateContent(
                 content {
                     image(image)
-                    text("Analise este produto e me dê o nome e uma descrição curta para inventário.")
+                    text("Analise a imagem, identifique o produto e use sua ferramenta de busca para encontrar preços reais na região de [INSERIR_CIDADE_OU_ESTADO]. " +
+                            "Consulte sites de grandes mercados, atacados e portais de transparência de preços do governo (como Preço da Hora ou Menor Preço). " +
+                            "Não invente valores. Se não encontrar o preço exato na cidade, use a média estadual. " +
+                            "Responda estritamente neste formato, sem textos adicionais: " +
+                            "[nome do produto] - [Média do valor na região] " +
+                            "Fonte do preço: [nome do site1] [valor] " +
+                            "[link_direto_1] " +
+                            "Fonte do preço: [nome do site2] [valor] " +
+                            "[link_direto_2] " +
+                            "Fonte do preço: [nome do site3] [valor] " +
+                            "[link_direto_3] " +
+                            "Região: [nome da região consultada]"
+                    )
                 }
             )
             response.text
