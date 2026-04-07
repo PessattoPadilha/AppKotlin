@@ -10,7 +10,7 @@
     tools:context=".Model.MenuActivity">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/button"
+        android:id="@+id/buttonMenu"
         android:layout_width="99dp"
         android:layout_height="86dp"
         android:layout_marginBottom="88dp"
