@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjetoCameraComGemini">
         <activity
+            android:name=".Model.MenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".Model.LoginActivity"
             android:exported="false" />
         <activity

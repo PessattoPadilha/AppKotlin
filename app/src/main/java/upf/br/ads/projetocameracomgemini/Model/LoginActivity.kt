@@ -1,6 +1,5 @@
 package upf.br.ads.projetocameracomgemini.Model
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,7 +9,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import upf.br.ads.projetocameracomgemini.MainActivity
 import upf.br.ads.projetocameracomgemini.R
 
 class LoginActivity : AppCompatActivity() {
@@ -37,7 +35,7 @@ class LoginActivity : AppCompatActivity() {
         val senha = SenhaLogin?.text.toString()
         if (email.equals("1") && senha.equals("1")) {
             Toast.makeText(this, "Autenticado com sucesso", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MenuActivity::class.java)
             startActivity(intent)
             finish()
 

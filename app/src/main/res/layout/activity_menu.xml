@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_misturado"
+    tools:context=".Model.MenuActivity">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        android:layout_width="99dp"
+        android:layout_height="86dp"
+        android:layout_marginBottom="88dp"
+        android:text="📸"
+        android:textSize="38sp"
+        android:textColor="#000000"
+        android:backgroundTint="#430F0F0F"
+        app:cornerRadius="12dp"
+        app:strokeWidth="4dp"
+        app:strokeColor="@color/button_stroke_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.498" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
