@@ -46,12 +46,19 @@ class GeminiRepository {
             val response = generativeModel.generateContent(
                 content {
                     image(image)
-                    text("Identifique o produto na imagem. Localização atual: $regiaoUsuario. " +
-                            "Pesquise preços reais em mercados locais para o ano de 2026. " +
-                            "Responda EXATAMENTE neste formato, sem introduções: " +
-                            "[Nome do Produto] - [Média de Valor] " +
-                            "Fonte: [Nome da Loja] [Preço] [Link se houver] " +
-                            "Caso não encontre links, descreva uma estimativa baseada na região: $regiaoUsuario.")
+                    text("Analise a imagem, identifique o produto e use sua ferramenta de busca para encontrar preços reais e atuais na região de $regiaoUsuario. " +
+                            "Consulte sites de mercados locais, atacados e o portal de transparência de preços do governo regional. " +
+                            "Não invente valores nem use médias nacionais. " +
+                            "Responda estritamente neste formato: " +
+                            "[nome do produto] - [Media do valor na região] " +
+                            "Fonte do preço: [nome do site1] [valor] " +
+                            "[link1] " +
+                            "Fonte do preço: [nome do site2] [valor] " +
+                            "[link2] " +
+                            "Fonte do preço: [nome do site3] [valor] " +
+                            "[link3] " +
+                            "Região: $regiaoUsuario"+
+                            "cidade: $regiaoUsuario")
                 }
             )
 
