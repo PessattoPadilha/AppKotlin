@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#a6a6a6"
-    tools:context=".Model.LoginActivity">
+    tools:context=".LoginActivity">
 
     <EditText
         android:id="@+id/EmailLogin"
@@ -48,7 +48,6 @@
         android:layout_marginTop="48dp"
         android:layout_marginEnd="32dp"
         android:backgroundTint="#252C47"
-        android:onClick="fazerLogin"
         android:text="Entrar"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
