@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjetoCameraComGemini">
         <activity
-            android:name=".model.ResultadoActivity"
+            android:name=".ResultadoActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

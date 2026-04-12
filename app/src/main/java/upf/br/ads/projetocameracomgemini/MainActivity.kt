@@ -22,7 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
 import upf.br.ads.projetocameracomgemini.data.GeminiRepository
-import upf.br.ads.projetocameracomgemini.model.ResultadoActivity
+import upf.br.ads.projetocameracomgemini.ResultadoActivity
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

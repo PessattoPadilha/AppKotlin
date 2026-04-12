@@ -1,11 +1,10 @@
-package upf.br.ads.projetocameracomgemini.model
+package upf.br.ads.projetocameracomgemini
 
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import upf.br.ads.projetocameracomgemini.R
 import java.io.File
 
 class ResultadoActivity : AppCompatActivity() {

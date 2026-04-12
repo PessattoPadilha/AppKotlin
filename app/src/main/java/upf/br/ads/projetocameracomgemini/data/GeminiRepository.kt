@@ -15,23 +15,24 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
+
+
 class GeminiRepository {
 
     // Configurações de segurança para evitar que a IA ignore a imagem (retorno vazio)
-    private val safetySettings = listOf(
-        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
-        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE)
-    )
+//    private val safetySettings = listOf(
+//        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+//        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+//        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+//        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE)
+//    )
 
     // Chave de API e instância do modelo Gemini 3 Flash Preview
-    private val apiKey = "AIzaSyDu1Qdx0QXvpqtf2GiRBPE4VyXANN-nMo8"
+    private val apiKey = "AIzaSyAL8D6CSS06lIp_I6SRsOtOGPMIMDL2Pb8"
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
-        apiKey = apiKey,
-        safetySettings = safetySettings
+        apiKey = apiKey
     )
 
     /**
@@ -42,23 +43,34 @@ class GeminiRepository {
             // 1. Obtém a localização do usuário
             val regiaoUsuario = obterLocalizacaoEscrita(context)
 
+            val promptIa = """
+                Analise a imagem e identifique o produto. 
+                Busque preços REAIS e ATUAIS na região de $regiaoUsuario.
+                
+                REGRAS DE FORMATO:
+                1. Use Markdown para criar hyperlinks nos nomes das fontes.
+                2. Mantenha os espaços entre os blocos para legibilidade.
+                3. Responda estritamente no formato abaixo.
+                4. nao gere nenhum texto fora do padrão abaixo
+            
+                FORMATO DE RESPOSTA:
+                [Nome do Produto] - [Média do valor na região]
+            
+                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
+            
+                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
+            
+                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
+            
+                Região: [Cidade e Estado]
+            """.trimIndent()
+
+
             // 2. Envia a imagem e o prompt para o Gemini
             val response = generativeModel.generateContent(
                 content {
                     image(image)
-                    text("Analise a imagem, identifique o produto e use sua ferramenta de busca para encontrar preços reais e atuais na região de $regiaoUsuario. " +
-                            "Consulte sites de mercados locais, atacados e o portal de transparência de preços do governo regional. " +
-                            "Não invente valores nem use médias nacionais. " +
-                            "Responda estritamente neste formato: " +
-                            "[nome do produto] - [Media do valor na região] " +
-                            "Fonte do preço: [nome do site1] [valor] " +
-                            "[link1] " +
-                            "Fonte do preço: [nome do site2] [valor] " +
-                            "[link2] " +
-                            "Fonte do preço: [nome do site3] [valor] " +
-                            "[link3] " +
-                            "Região: $regiaoUsuario"+
-                            "cidade: $regiaoUsuario")
+                    text(promptIa)
                 }
             )
 
@@ -85,8 +97,11 @@ class GeminiRepository {
     private suspend fun obterLocalizacaoEscrita(context: Context): String {
         return try {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-            // Aguarda a última localização conhecida (requer play-services-location e coroutines-play-services)
-            val location = fusedLocationClient.lastLocation.await()
+            // pega a localização atual (requer play-services-location e coroutines-play-services)
+            val location = fusedLocationClient.getCurrentLocation(
+                com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
+                null
+            ).await()
 
             if (location != null) {
                 val geocoder = Geocoder(context, Locale.getDefault())
@@ -103,7 +118,7 @@ class GeminiRepository {
                 "Brasil"
             }
         } catch (e: Exception) {
-            "Brasil" // Fallback caso o GPS falhe
+            "Brasil"
         }
     }
 }

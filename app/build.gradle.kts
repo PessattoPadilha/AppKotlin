@@ -60,16 +60,11 @@ dependencies {
     implementation("androidx.camera:camera-core:$camerax_version")
     implementation("androidx.camera:camera-camera2:$camerax_version")
     implementation("androidx.camera:camera-lifecycle:$camerax_version")
-
-    // ESTA É A QUE RESOLVE O SEU ERRO (PreviewView está aqui):
     implementation("androidx.camera:camera-view:$camerax_version")
-
     // Opcional: Para facilitar a captura
     implementation("androidx.camera:camera-extensions:$camerax_version")
-
     // SDK do Google AI para o Gemini
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
