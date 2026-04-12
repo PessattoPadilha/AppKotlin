@@ -68,5 +68,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+    // Para chamadas HTTP (pode usar OkHttp ou Retrofit, aqui usaremos OkHttp por ser direto)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Para facilitar a leitura do JSON
+    implementation("org.json:json:20231013")
+
 
 }

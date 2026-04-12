@@ -5,99 +5,128 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.location.Geocoder
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.BlockThreshold
-import com.google.ai.client.generativeai.type.HarmCategory
-import com.google.ai.client.generativeai.type.SafetySetting
 import com.google.ai.client.generativeai.type.content
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.util.Locale
-
-
 
 class GeminiRepository {
 
-    // Configurações de segurança para evitar que a IA ignore a imagem (retorno vazio)
-//    private val safetySettings = listOf(
-//        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
-//        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
-//        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
-//        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE)
-//    )
-
-    // Chave de API e instância do modelo Gemini 3 Flash Preview
-    private val apiKey = "AIzaSyAL8D6CSS06lIp_I6SRsOtOGPMIMDL2Pb8"
+    // CHAVES DE API
+    private val geminiApiKey = "AIzaSyAitDF32iMnfm4MQ4XkOv-3g-buEDtloZ4"
+    private val serperApiKey = "f42428cfde8daf6e2c820e6337340d0e8162aab2"
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
-        apiKey = apiKey
+        apiKey = geminiApiKey
     )
 
+    private val httpClient = OkHttpClient()
+
     /**
-     * Analisa a imagem e retorna uma String com o resultado ou a mensagem de erro.
+     * Fluxo: Identifica com Gemini -> Busca preços reais no Google Shopping via Serper
      */
-    suspend fun analisarProduto(context: Context, image: Bitmap): String? = withContext(Dispatchers.IO) {
-        try {
-            // 1. Obtém a localização do usuário
-            val regiaoUsuario = obterLocalizacaoEscrita(context)
+    suspend fun analisarProduto(context: Context, image: Bitmap): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                // 1. Obtém a localização (Cidade, Estado) via GPS
+                val regiaoUsuario = obterLocalizacaoEscrita(context)
 
-            val promptIa = """
-                Analise a imagem e identifique o produto. 
-                Busque preços REAIS e ATUAIS na região de $regiaoUsuario.
-                
-                REGRAS DE FORMATO:
-                1. Use Markdown para criar hyperlinks nos nomes das fontes.
-                2. Mantenha os espaços entre os blocos para legibilidade.
-                3. Responda estritamente no formato abaixo.
-                4. nao gere nenhum texto fora do padrão abaixo
-            
-                FORMATO DE RESPOSTA:
-                [Nome do Produto] - [Média do valor na região]
-            
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
-            
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
-            
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
-            
-                Região: [Cidade e Estado]
-            """.trimIndent()
+                // 2. O Gemini identifica o nome exato do produto
+                val promptIdentificacao =
+                    "Identifique exatamente o produto nesta imagem. Responda apenas o nome e modelo, sem frases adicionais."
+                val responseGemini = generativeModel.generateContent(
+                    content {
+                        image(image)
+                        text(promptIdentificacao)
+                    }
+                )
 
+                val nomeProduto = responseGemini.text?.trim()
+                    ?: return@withContext "Não foi possível identificar o produto na imagem."
 
-            // 2. Envia a imagem e o prompt para o Gemini
-            val response = generativeModel.generateContent(
-                content {
-                    image(image)
-                    text(promptIa)
-                }
-            )
+                // 3. Busca os dados de venda (Shopping) na Serper.dev enviando a região
+                return@withContext buscarDadosShopping(nomeProduto, regiaoUsuario)
 
-            // 3. Valida se o texto retornou nulo ou bloqueado
-            val textoGerado = response.text
-
-            if (textoGerado.isNullOrBlank()) {
-                "A IA identificou a imagem, mas a resposta foi bloqueada pelos filtros de segurança do modelo Preview."
-            } else {
-                textoGerado
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "Erro na análise técnica: ${e.localizedMessage ?: "Erro desconhecido"}"
             }
+        }
 
+    private suspend fun buscarDadosShopping(produto: String, regiao: String): String {
+        val mediaType = "application/json".toMediaType()
+
+        val jsonBody = JSONObject().apply {
+            put("q", produto)
+            put("gl", "br")
+            put("hl", "pt-br")
+            put("location", regiao) // A Serper usa isso para priorizar resultados locais
+        }
+
+        val request = Request.Builder()
+            .url("https://google.serper.dev/shopping")
+            .post(jsonBody.toString().toRequestBody(mediaType))
+            .addHeader("X-API-KEY", serperApiKey)
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        return try {
+            val response = httpClient.newCall(request).execute()
+            val responseData = response.body?.string() ?: ""
+            // Passamos a regiao para ser exibida no texto final
+            formatarRespostaShopping(responseData, produto, regiao)
         } catch (e: Exception) {
-            // Em caso de erro de rede, API ou GPS, retorna o erro técnico para o usuário
-            e.printStackTrace()
-            "Erro na análise técnica: ${e.localizedMessage ?: "Erro desconhecido"}"
+            "Erro ao conectar com o serviço de preços: ${e.message}"
         }
     }
 
     /**
-     * Função privada para obter o nome da cidade/estado via GPS
+     * Formata a resposta e inclui a informação da região pesquisada
      */
+    private fun formatarRespostaShopping(
+        jsonString: String,
+        produto: String,
+        regiao: String
+    ): String {
+        val json = JSONObject(jsonString)
+        val shoppingItems = json.optJSONArray("shopping")
+            ?: return "Identifiquei *$produto*, mas não encontrei lojas em $regiao."
+
+        val sb = StringBuilder()
+        sb.append("### 🔎 Produto: $produto\n")
+        sb.append("📍 **Região de busca:** $regiao\n\n")
+
+        for (i in 0 until minOf(shoppingItems.length(), 3)) {
+            val item = shoppingItems.getJSONObject(i)
+
+            val tituloItem = item.optString("title")
+            val preco = item.optString("price", "Consultar")
+            val link = item.optString("link")
+            val vendedor = item.optString("source", "Loja")
+
+            sb.append("**Item:** $tituloItem\n")
+            sb.append("**Preço:** $preco\n")
+            sb.append("**Loja:** $vendedor\n")
+            sb.append("🔗 [Ver Oferta]($link)\n")
+            sb.append("----------------------------\n")
+        }
+
+        return sb.toString()
+    }
+
     @SuppressLint("MissingPermission")
     private suspend fun obterLocalizacaoEscrita(context: Context): String {
         return try {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-            // pega a localização atual (requer play-services-location e coroutines-play-services)
+            // Solicita a localização com alta precisão
             val location = fusedLocationClient.getCurrentLocation(
                 com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
                 null
@@ -108,9 +137,23 @@ class GeminiRepository {
                 val enderecos = geocoder.getFromLocation(location.latitude, location.longitude, 1)
 
                 if (!enderecos.isNullOrEmpty()) {
-                    val cidade = enderecos[0].locality ?: ""
-                    val estado = enderecos[0].adminArea ?: ""
-                    "$cidade, $estado"
+                    val endereco = enderecos[0]
+
+                    // Tentativa detalhada: prioriza cidade (locality ou subAdminArea)
+                    val cidade = endereco.locality
+                        ?: endereco.subAdminArea
+                        ?: endereco.subLocality
+                        ?: ""
+
+                    val estado = endereco.adminArea ?: ""
+
+                    if (cidade.isNotEmpty() && estado.isNotEmpty()) {
+                        "$cidade, $estado"
+                    } else if (cidade.isNotEmpty()) {
+                        cidade
+                    } else {
+                        estado.ifEmpty { "Brasil" }
+                    }
                 } else {
                     "Brasil"
                 }
