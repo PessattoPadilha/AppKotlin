@@ -28,16 +28,14 @@ class GeminiRepository {
 //    )
 
     // Chave de API e instância do modelo Gemini 3 Flash Preview
-    private val apiKey = "AIzaSyB3JfmDRaVVBiuNQDubUtesYf2e1BHSn5s"
+    private val apiKey = "AIzaSyD3CmuXQIzuvFvziQTfRChnY7iHAMo2qIk"
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
         apiKey = apiKey
     )
 
-    /**
-     * Analisa a imagem e retorna uma String com o resultado ou a mensagem de erro.
-     */
+
     suspend fun analisarProduto(context: Context, image: Bitmap): String? = withContext(Dispatchers.IO) {
         try {
             // 1. Obtém a localização do usuário
@@ -45,22 +43,23 @@ class GeminiRepository {
 
             val promptIa = """
                 Analise a imagem e identifique o produto. 
-                Busque preços REAIS e ATUAIS na região de $regiaoUsuario.
+                Localização: $regiaoUsuario.
                 
-                REGRAS DE FORMATO:
-                1. Use Markdown para criar hyperlinks nos nomes das fontes.
-                2. Mantenha os espaços entre os blocos para legibilidade.
-                3. Responda estritamente no formato abaixo.
-                4. nao gere nenhum texto fora do padrão abaixo
+                REGRAS CRÍTICAS:
+                1. Forneça exatamente 3 opções de lojas diferentes.
+                2. Use EXCLUSIVAMENTE o formato Markdown: [Nome da Loja](URL).
+                3. NÃO escreva introduções como "Aqui está a análise" ou conclusões.
+                4. Responda APENAS o bloco de texto abaixo.
+                5. De preços atualizados da localização atual 
+                6. Não invente 
             
-                FORMATO DE RESPOSTA:
-                [Nome do Produto] - [Média do valor na região]
+                FORMATO DE RESPOSTA (ESTRITO):
+                [Nome do Produto]
+                Média de preço: [Valor]
             
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
-            
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
-            
-                Fonte do preço: [Clique aqui para ver o site](URL_DO_SITE) - [Valor]
+                1. [Nome da Loja 1](URL_DA_LOJA_1) - [Preço]
+                2. [Nome da Loja 2](URL_DA_LOJA_2) - [Preço]
+                3. [Nome da Loja 3](URL_DA_LOJA_3) - [Preço]
             
                 Região: [Cidade e Estado]
             """.trimIndent()
@@ -106,10 +105,12 @@ class GeminiRepository {
                 val enderecos = geocoder.getFromLocation(location.latitude, location.longitude, 1)
 
                 if (!enderecos.isNullOrEmpty()) {
-                    val cidade = enderecos[0].locality ?: ""
-                    val estado = enderecos[0].adminArea ?: ""
+                    val addr = enderecos[0]
+                    // Tenta Localidade, se não houver, tenta SubAdminArea (comum em cidades menores)
+                    val cidade = addr.locality ?: addr.subAdminArea ?: addr.subLocality ?: "Cidade desconhecida"
+                    val estado = addr.adminArea ?: ""
                     "$cidade, $estado"
-                } else {
+                }else {
                     "Brasil"
                 }
             } else {
