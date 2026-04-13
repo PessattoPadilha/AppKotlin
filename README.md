@@ -44,6 +44,7 @@ Arquivos do projeto:
     ResultadoActivity: Camada de apresentação dos dados processados.
 
 🚀 Como Rodar o Projeto
+
         1- Clone o repositório:
         
         2- Obtenha uma chave de API no Google AI Studio.
