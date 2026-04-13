@@ -9,6 +9,35 @@
     android:background="@drawable/background_misturado"
     tools:context=".MenuActivity">
 
+    <TextView
+        android:id="@+id/textWelcome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="120dp"
+        android:gravity="center"
+        android:text="Bem-vindo ao CamIA"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textInstruction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="Toque no botão abaixo para tirar uma foto do produto e comparar preços em tempo real."
+        android:textColor="#E0E0E0"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textWelcome" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonMenu"
         android:layout_width="99dp"

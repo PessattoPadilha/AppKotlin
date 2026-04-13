@@ -28,7 +28,7 @@ class GeminiRepository {
 //    )
 
     // Chave de API e instância do modelo Gemini 3 Flash Preview
-    private val apiKey = "AIzaSyAL8D6CSS06lIp_I6SRsOtOGPMIMDL2Pb8"
+    private val apiKey = "AIzaSyB3JfmDRaVVBiuNQDubUtesYf2e1BHSn5s"
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
@@ -41,7 +41,7 @@ class GeminiRepository {
     suspend fun analisarProduto(context: Context, image: Bitmap): String? = withContext(Dispatchers.IO) {
         try {
             // 1. Obtém a localização do usuário
-            val regiaoUsuario = obterLocalizacaoEscrita(context)
+            val regiaoUsuario = obterLocalizacao(context)
 
             val promptIa = """
                 Analise a imagem e identifique o produto. 
@@ -84,17 +84,15 @@ class GeminiRepository {
             }
 
         } catch (e: Exception) {
-            // Em caso de erro de rede, API ou GPS, retorna o erro técnico para o usuário
+            // Em caso de erro de rede API ou GPS
             e.printStackTrace()
             "Erro na análise técnica: ${e.localizedMessage ?: "Erro desconhecido"}"
         }
     }
 
-    /**
-     * Função privada para obter o nome da cidade/estado via GPS
-     */
+
     @SuppressLint("MissingPermission")
-    private suspend fun obterLocalizacaoEscrita(context: Context): String {
+    private suspend fun obterLocalizacao(context: Context): String {
         return try {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             // pega a localização atual (requer play-services-location e coroutines-play-services)

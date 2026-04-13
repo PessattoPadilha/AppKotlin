@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    // --- MUDANÇA AQUI: Launcher para múltiplas permissões ---
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -65,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             takePhoto()
         }
 
-        // --- MUDANÇA AQUI: Verifica Câmera e Localização ao iniciar ---
+
         checkAndRequestPermissions()
     }
 
@@ -87,8 +86,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // O restante do seu código (startCamera, bindPreview, takePhoto, onDestroy)
-    // permanece igual ao original, garantindo que a câmera inicie se permitido.
 
     private fun startCamera() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
