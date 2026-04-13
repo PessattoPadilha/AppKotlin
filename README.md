@@ -35,13 +35,13 @@ Lifecycle Scope: Garante que as operações da IA sejam canceladas automaticamen
 🏗️ Arquitetura do Projeto
 Arquivos do projeto:
 
-GeminiRepository: Camada de dados que gerencia a lógica da API e GPS.
-
-MainActivity: Gerenciamento do hardware (CameraX) e fluxo de permissões.
-
-LoginActivity & MenuActivity: Controle de acesso e navegação.
-
-ResultadoActivity: Camada de apresentação dos dados processados.
+    GeminiRepository: Camada de dados que gerencia a lógica da API e GPS.
+    
+    MainActivity: Gerenciamento do hardware (CameraX) e fluxo de permissões.
+    
+    LoginActivity & MenuActivity: Controle de acesso e navegação.
+    
+    ResultadoActivity: Camada de apresentação dos dados processados.
 
 🚀 Como Rodar o Projeto
 1- Clone o repositório:
